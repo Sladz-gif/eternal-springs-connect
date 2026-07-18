@@ -3,7 +3,13 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CheckCircle2 } from "lucide-react";
 import { useApp } from "@/lib/app-context";
 
@@ -14,7 +20,7 @@ export const Route = createFileRoute("/f/$shareId")({
 function PublicFormPage() {
   const { shareId } = Route.useParams();
   const { forms, addFormSubmission } = useApp();
-  const form = forms.find(f => f.shareId === shareId);
+  const form = forms.find((f) => f.shareId === shareId);
   const navigate = useNavigate();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -38,7 +44,7 @@ function PublicFormPage() {
   };
 
   const handleInputChange = (fieldId: string, value: any) => {
-    setFormData(prev => ({ ...prev, [fieldId]: value }));
+    setFormData((prev) => ({ ...prev, [fieldId]: value }));
   };
 
   if (submitted) {
@@ -48,10 +54,14 @@ function PublicFormPage() {
           <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-2xl font-semibold mb-2">Thank You!</h1>
           <p className="text-gray-500 mb-4">Your response has been submitted successfully.</p>
-          <Button onClick={() => {
-            setSubmitted(false);
-            setFormData({});
-          }}>Submit Another Response</Button>
+          <Button
+            onClick={() => {
+              setSubmitted(false);
+              setFormData({});
+            }}
+          >
+            Submit Another Response
+          </Button>
         </Card>
       </div>
     );
@@ -62,13 +72,11 @@ function PublicFormPage() {
       <Card className="w-full max-w-xl p-8">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">{form.name}</h1>
-          {form.description && (
-            <p className="text-sm text-gray-500 mt-2">{form.description}</p>
-          )}
+          {form.description && <p className="text-sm text-gray-500 mt-2">{form.description}</p>}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {form.fields.map(field => (
+          {form.fields.map((field) => (
             <div key={field.id}>
               <label className="block text-sm font-medium mb-1">{field.label}</label>
               {field.type === "text" && (
@@ -102,8 +110,10 @@ function PublicFormPage() {
                     <SelectValue placeholder={`Select ${field.label.toLowerCase()}`} />
                   </SelectTrigger>
                   <SelectContent>
-                    {field.options.map(option => (
-                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    {field.options.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

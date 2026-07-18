@@ -7,7 +7,13 @@ import type { Department } from "@/lib/mock-data";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Modal } from "@/components/ui/modal";
 import { Plus, Users2, CalendarClock, ArrowRight } from "lucide-react";
 
@@ -15,7 +21,12 @@ export const Route = createFileRoute("/departments/")({ component: DepartmentsPa
 
 function DepartmentsPage() {
   const { can } = useApp();
-  if (!can("departments")) return <AppShell><AccessDenied moduleName="Departments" /></AppShell>;
+  if (!can("departments"))
+    return (
+      <AppShell>
+        <AccessDenied moduleName="Departments" />
+      </AppShell>
+    );
 
   const [depts, setDepts] = useState<Department[]>(departments);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -62,7 +73,8 @@ function DepartmentsPage() {
               className="bg-navy text-navy-foreground hover:bg-navy/90"
               onClick={() => setIsAddModalOpen(true)}
             >
-              <Plus className="h-4 w-4 mr-2" />Add department
+              <Plus className="h-4 w-4 mr-2" />
+              Add department
             </Button>
           }
         />
@@ -70,14 +82,21 @@ function DepartmentsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {depts.map((d) => {
             const roster = members.filter((m) => m.departments.includes(d.id));
-            const tone = d.color === "gold" ? "bg-gold text-gold-foreground" : d.color === "sky" ? "bg-sky text-sky-foreground" : "bg-navy text-navy-foreground";
+            const tone =
+              d.color === "gold"
+                ? "bg-gold text-gold-foreground"
+                : d.color === "sky"
+                  ? "bg-sky text-sky-foreground"
+                  : "bg-navy text-navy-foreground";
             return (
               <Card key={d.id} className="p-5 flex flex-col">
                 <div className="flex items-start justify-between mb-4">
                   <div className={`h-11 w-11 rounded-lg grid place-items-center ${tone}`}>
                     <Users2 className="h-5 w-5" />
                   </div>
-                  <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">{d.members} members</span>
+                  <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                    {d.members} members
+                  </span>
                 </div>
                 <h3 className="text-lg font-semibold">{d.name}</h3>
                 <p className="text-sm text-muted-foreground mt-0.5">Led by {d.leader}</p>
@@ -87,14 +106,29 @@ function DepartmentsPage() {
 
                 <div className="mt-4 flex -space-x-2">
                   {roster.slice(0, 5).map((m) => (
-                    <div key={m.id} className="h-7 w-7 rounded-full bg-muted border-2 border-surface text-[10px] grid place-items-center font-semibold">
-                      {m.name.split(" ").map((s) => s[0]).slice(0, 2).join("")}
+                    <div
+                      key={m.id}
+                      className="h-7 w-7 rounded-full bg-muted border-2 border-surface text-[10px] grid place-items-center font-semibold"
+                    >
+                      {m.name
+                        .split(" ")
+                        .map((s) => s[0])
+                        .slice(0, 2)
+                        .join("")}
                     </div>
                   ))}
-                  {roster.length > 5 && <div className="h-7 w-7 rounded-full bg-muted border-2 border-surface text-[10px] grid place-items-center text-muted-foreground">+{roster.length - 5}</div>}
+                  {roster.length > 5 && (
+                    <div className="h-7 w-7 rounded-full bg-muted border-2 border-surface text-[10px] grid place-items-center text-muted-foreground">
+                      +{roster.length - 5}
+                    </div>
+                  )}
                 </div>
 
-                <Link to="/departments/$id" params={{ id: d.id }} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-navy hover:text-navy/80">
+                <Link
+                  to="/departments/$id"
+                  params={{ id: d.id }}
+                  className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-navy hover:text-navy/80"
+                >
                   View department <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </Card>
@@ -160,8 +194,12 @@ function DepartmentsPage() {
             </Select>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-            <Button className="bg-navy text-navy-foreground" onClick={handleAddDepartment}>Add Department</Button>
+            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button className="bg-navy text-navy-foreground" onClick={handleAddDepartment}>
+              Add Department
+            </Button>
           </div>
         </div>
       </Modal>

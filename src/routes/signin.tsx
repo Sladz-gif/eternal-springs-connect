@@ -39,7 +39,9 @@ function SignInPage() {
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">Full Name</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              Full Name
+            </label>
             <Input
               placeholder="Enter your full name"
               value={name}
@@ -63,13 +65,8 @@ function SignInPage() {
               autoComplete="current-password"
             />
           </div>
-          {error && (
-            <div className="text-sm text-destructive">{error}</div>
-          )}
-          <Button
-            type="submit"
-            className="w-full bg-navy text-navy-foreground hover:bg-navy/90"
-          >
+          {error && <div className="text-sm text-destructive">{error}</div>}
+          <Button type="submit" className="w-full bg-navy text-navy-foreground hover:bg-navy/90">
             Sign In
           </Button>
         </form>

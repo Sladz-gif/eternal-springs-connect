@@ -21,7 +21,12 @@ export const Route = createFileRoute("/members")({ component: MembersPage });
 
 function MembersPage() {
   const { can, membersList, setMembersList } = useApp();
-  if (!can("members")) return <AppShell><AccessDenied moduleName="Members Directory" /></AppShell>;
+  if (!can("members"))
+    return (
+      <AppShell>
+        <AccessDenied moduleName="Members Directory" />
+      </AppShell>
+    );
 
   const [q, setQ] = useState("");
   const [dep, setDep] = useState("all");
@@ -49,8 +54,18 @@ function MembersPage() {
           subtitle={`${membersList.length} congregants across ${departments.length} departments`}
           actions={
             <>
-              <Button variant="outline" size="sm" onClick={() => alert("Exporting members...")}><Filter className="h-4 w-4 mr-2" />Export</Button>
-              <Button size="sm" className="bg-navy text-navy-foreground" onClick={() => setIsModalOpen(true)}><UserPlus className="h-4 w-4 mr-2" />Add member</Button>
+              <Button variant="outline" size="sm" onClick={() => alert("Exporting members...")}>
+                <Filter className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              <Button
+                size="sm"
+                className="bg-navy text-navy-foreground"
+                onClick={() => setIsModalOpen(true)}
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add member
+              </Button>
             </>
           }
         />
@@ -59,13 +74,24 @@ function MembersPage() {
           <div className="flex flex-wrap gap-3">
             <div className="relative flex-1 min-w-[240px]">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name…" className="pl-9" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search by name…"
+                className="pl-9"
+              />
             </div>
             <Select value={dep} onValueChange={setDep}>
-              <SelectTrigger className="w-[220px]"><SelectValue placeholder="Department" /></SelectTrigger>
+              <SelectTrigger className="w-[220px]">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All departments</SelectItem>
-                {departments.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                {departments.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.name}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -86,12 +112,18 @@ function MembersPage() {
               </thead>
               <tbody className="divide-y">
                 {filtered.map((m) => {
-                  const initials = m.name.split(" ").map((s) => s[0]).slice(0, 2).join("");
+                  const initials = m.name
+                    .split(" ")
+                    .map((s) => s[0])
+                    .slice(0, 2)
+                    .join("");
                   return (
                     <tr key={m.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-navy/10 text-navy grid place-items-center text-xs font-semibold">{initials}</div>
+                          <div className="h-9 w-9 rounded-full bg-navy/10 text-navy grid place-items-center text-xs font-semibold">
+                            {initials}
+                          </div>
                           <div>
                             <div className="font-medium">{m.name}</div>
                           </div>
@@ -102,10 +134,20 @@ function MembersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          {m.departments.length === 0 && <span className="text-xs text-muted-foreground">—</span>}
+                          {m.departments.length === 0 && (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          )}
                           {m.departments.map((d) => {
                             const dept = departments.find((x) => x.id === d);
-                            return <Badge key={d} variant="secondary" className="bg-sky/15 text-sky-foreground border-0">{dept?.name}</Badge>;
+                            return (
+                              <Badge
+                                key={d}
+                                variant="secondary"
+                                className="bg-sky/15 text-sky-foreground border-0"
+                              >
+                                {dept?.name}
+                              </Badge>
+                            );
                           })}
                         </div>
                       </td>
@@ -119,8 +161,8 @@ function MembersPage() {
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <Button 
-                          variant="outline" 
+                        <Button
+                          variant="outline"
                           size="sm"
                           onClick={() => {
                             setEditingMemberId(m.id);
@@ -138,31 +180,31 @@ function MembersPage() {
           </div>
         </Card>
       </PageContainer>
-      
-      <Modal 
-        isOpen={isModalOpen} 
+
+      <Modal
+        isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setNewMemberName("");
           setNewMemberPhone("");
           setNewMemberYearJoined(String(new Date().getFullYear()));
           setNewMemberDepartments([]);
-        }} 
+        }}
         title="Add New Member"
       >
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Name</label>
-            <Input 
-              placeholder="Enter full name" 
+            <Input
+              placeholder="Enter full name"
               value={newMemberName}
               onChange={(e) => setNewMemberName(e.target.value)}
             />
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Phone</label>
-            <Input 
-              placeholder="Enter phone number" 
+            <Input
+              placeholder="Enter phone number"
               type="tel"
               value={newMemberPhone}
               onChange={(e) => setNewMemberPhone(e.target.value)}
@@ -170,7 +212,7 @@ function MembersPage() {
           </div>
           <div>
             <label className="block text-sm font-medium mb-1">Year Joined</label>
-            <Input 
+            <Input
               type="number"
               placeholder="YYYY"
               value={newMemberYearJoined}
@@ -189,7 +231,9 @@ function MembersPage() {
                       if (e.target.checked) {
                         setNewMemberDepartments([...newMemberDepartments, dept.id]);
                       } else {
-                        setNewMemberDepartments(newMemberDepartments.filter(id => id !== dept.id));
+                        setNewMemberDepartments(
+                          newMemberDepartments.filter((id) => id !== dept.id),
+                        );
                       }
                     }}
                     className="rounded border-gray-300 text-navy focus:ring-navy"
@@ -200,8 +244,8 @@ function MembersPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => {
                 setIsModalOpen(false);
                 setNewMemberName("");
@@ -211,8 +255,8 @@ function MembersPage() {
             >
               Cancel
             </Button>
-            <Button 
-              className="bg-navy text-navy-foreground" 
+            <Button
+              className="bg-navy text-navy-foreground"
               onClick={() => {
                 // Add new member to the mock data
                 if (newMemberName.trim()) {
@@ -224,7 +268,7 @@ function MembersPage() {
                     phone: newMemberPhone.trim(),
                     joined: newMemberYearJoined,
                     departments: newMemberDepartments,
-                    attendance: 0
+                    attendance: 0,
                   };
                   setMembersList([...membersList, newMember]);
                   alert("Member added!");
@@ -245,23 +289,27 @@ function MembersPage() {
       </Modal>
 
       {/* Edit Member Modal */}
-      <Modal 
-        isOpen={!!editingMemberId} 
+      <Modal
+        isOpen={!!editingMemberId}
         onClose={() => {
           setEditingMemberId(null);
           setEditingMemberDepartments([]);
-        }} 
+        }}
         title="Edit Member Departments"
       >
         {(() => {
-          const member = membersList.find(m => m.id === editingMemberId);
+          const member = membersList.find((m) => m.id === editingMemberId);
           if (!member) return null;
-          
+
           return (
             <div className="space-y-4">
               <div>
-                <p className="text-sm"><strong>Name:</strong> {member.name}</p>
-                <p className="text-sm text-muted-foreground"><strong>Phone:</strong> {member.phone}</p>
+                <p className="text-sm">
+                  <strong>Name:</strong> {member.name}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Phone:</strong> {member.phone}
+                </p>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Departments</label>
@@ -275,7 +323,9 @@ function MembersPage() {
                           if (e.target.checked) {
                             setEditingMemberDepartments([...editingMemberDepartments, dept.id]);
                           } else {
-                            setEditingMemberDepartments(editingMemberDepartments.filter(id => id !== dept.id));
+                            setEditingMemberDepartments(
+                              editingMemberDepartments.filter((id) => id !== dept.id),
+                            );
                           }
                         }}
                         className="rounded border-gray-300 text-navy focus:ring-navy"
@@ -286,8 +336,8 @@ function MembersPage() {
                 </div>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setEditingMemberId(null);
                     setEditingMemberDepartments([]);
@@ -295,16 +345,18 @@ function MembersPage() {
                 >
                   Cancel
                 </Button>
-                <Button 
-                  className="bg-navy text-navy-foreground" 
+                <Button
+                  className="bg-navy text-navy-foreground"
                   onClick={() => {
                     // Update the member's departments
-                    setMembersList(membersList.map(m => {
-                      if (m.id === editingMemberId) {
-                        return { ...m, departments: editingMemberDepartments };
-                      }
-                      return m;
-                    }));
+                    setMembersList(
+                      membersList.map((m) => {
+                        if (m.id === editingMemberId) {
+                          return { ...m, departments: editingMemberDepartments };
+                        }
+                        return m;
+                      }),
+                    );
                     alert("Member departments updated!");
                     setEditingMemberId(null);
                     setEditingMemberDepartments([]);

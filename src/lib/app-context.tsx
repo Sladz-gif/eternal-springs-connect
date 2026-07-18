@@ -1,5 +1,30 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
-import { roles as seedRoles, modules as seedModules, type Role, type Module, seedUsers, type User, forms as seedForms, type FormDef, attendanceRecords as seedAttendanceRecords, type AttendanceRecord, members as seedMembers, type Member, events as seedEvents, type Event, giving as seedGiving, type Giving, expenses as seedExpenses, type Expense, funds as seedFunds, type Fund, projects as seedProjects, type Project, seedNotifications, type Notification } from "./mock-data";
+import {
+  roles as seedRoles,
+  modules as seedModules,
+  type Role,
+  type Module,
+  seedUsers,
+  type User,
+  forms as seedForms,
+  type FormDef,
+  attendanceRecords as seedAttendanceRecords,
+  type AttendanceRecord,
+  members as seedMembers,
+  type Member,
+  events as seedEvents,
+  type Event,
+  giving as seedGiving,
+  type Giving,
+  expenses as seedExpenses,
+  type Expense,
+  funds as seedFunds,
+  type Fund,
+  projects as seedProjects,
+  type Project,
+  seedNotifications,
+  type Notification,
+} from "./mock-data";
 import { generateCode } from "./utils";
 
 export const currencies: Currency[] = [
@@ -59,7 +84,9 @@ type Ctx = {
   addFund: (fund: Omit<Fund, "id" | "balance">) => void;
   projectsList: Project[];
   setProjectsList: (projects: Project[]) => void;
-  addProject: (project: Omit<Project, "id" | "raised" | "contributors" | "updates" | "status">) => void;
+  addProject: (
+    project: Omit<Project, "id" | "raised" | "contributors" | "updates" | "status">,
+  ) => void;
   notifications: Notification[];
   setNotifications: (notifications: Notification[]) => void;
   addNotification: (notification: Omit<Notification, "id" | "date">) => void;
@@ -78,7 +105,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrency] = useState<Currency>(currencies[0]);
   const [language, setLanguage] = useState<Language>(languages[0]);
   const [forms, setForms] = useState<FormDef[]>(seedForms);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>(seedAttendanceRecords);
+  const [attendanceRecords, setAttendanceRecords] =
+    useState<AttendanceRecord[]>(seedAttendanceRecords);
   const [membersList, setMembersList] = useState<Member[]>(seedMembers);
   const [eventsList, setEventsList] = useState<Event[]>(seedEvents);
   const [givingList, setGivingList] = useState<Giving[]>(seedGiving);
@@ -92,13 +120,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [roles, currentRoleId],
   );
 
-  const can = (id: string) =>
-    currentRole.fullAccess || currentRole.modules.includes(id);
-  const canEdit = (id: string) =>
-    currentRole.fullAccess || currentRole.editable.includes(id);
+  const can = (id: string) => currentRole.fullAccess || currentRole.modules.includes(id);
+  const canEdit = (id: string) => currentRole.fullAccess || currentRole.editable.includes(id);
 
   const signIn = (name: string, code: string): boolean => {
-    const user = users.find(u => u.name.toLowerCase() === name.toLowerCase() && u.code === code);
+    const user = users.find((u) => u.name.toLowerCase() === name.toLowerCase() && u.code === code);
     if (user) {
       setCurrentUser(user);
       setCurrentRoleId(user.roleId);
@@ -112,12 +138,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUserCode = (userId: string, newCode: string) => {
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, code: newCode } : u));
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, code: newCode } : u)));
   };
 
   const regenerateUserCode = (userId: string) => {
     const newCode = generateCode();
-    setUsers(prev => prev.map(u => u.id === userId ? { ...u, code: newCode } : u));
+    setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, code: newCode } : u)));
   };
 
   const addRole = (r: Omit<Role, "id"> & { userName: string; code?: string }) => {
@@ -134,15 +160,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const addModule = (m: Omit<Module, "id"> & { id?: string }) =>
-    setModules((prev) => [...prev, { id: m.id ?? `mod-${Date.now()}`, name: m.name, group: m.group }]);
+    setModules((prev) => [
+      ...prev,
+      { id: m.id ?? `mod-${Date.now()}`, name: m.name, group: m.group },
+    ]);
 
   const addFormSubmission = (formId: string, submission: Record<string, any>) => {
-    setForms(prev => prev.map(form => {
-      if (form.id === formId) {
-        return { ...form, submissions: [...form.submissions, submission] };
-      }
-      return form;
-    }));
+    setForms((prev) =>
+      prev.map((form) => {
+        if (form.id === formId) {
+          return { ...form, submissions: [...form.submissions, submission] };
+        }
+        return form;
+      }),
+    );
   };
 
   const addGiving = (giving: Omit<Giving, "id" | "receipt">) => {
@@ -150,12 +181,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const newReceipt = `ETS-2026-${String(4000 + givingList.length).padStart(5, "0")}`;
     setGivingList([...givingList, { ...giving, id: newId, receipt: newReceipt }]);
     // Update fund balance
-    setFundsList(prev => prev.map(fund => {
-      if (fund.id === giving.fundId) {
-        return { ...fund, balance: fund.balance + giving.amount };
-      }
-      return fund;
-    }));
+    setFundsList((prev) =>
+      prev.map((fund) => {
+        if (fund.id === giving.fundId) {
+          return { ...fund, balance: fund.balance + giving.amount };
+        }
+        return fund;
+      }),
+    );
   };
 
   const addExpense = (expense: Omit<Expense, "id" | "status">) => {
@@ -164,12 +197,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   const updateExpenseStatus = (expenseId: string, status: Expense["status"]) => {
-    const expense = expensesList.find(e => e.id === expenseId);
+    const expense = expensesList.find((e) => e.id === expenseId);
     if (expense) {
-      setExpensesList(prev => prev.map(e => e.id === expenseId ? { ...e, status } : e));
+      setExpensesList((prev) => prev.map((e) => (e.id === expenseId ? { ...e, status } : e)));
       if (status === "Approved") {
         // Subtract from first fund (general) for simplicity
-        setFundsList(prev => prev.map((f, i) => i === 0 ? { ...f, balance: f.balance - expense.amount } : f));
+        setFundsList((prev) =>
+          prev.map((f, i) => (i === 0 ? { ...f, balance: f.balance - expense.amount } : f)),
+        );
       }
     }
   };
@@ -179,9 +214,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setFundsList([...fundsList, { ...fund, id: newId, balance: 0 }]);
   };
 
-  const addProject = (project: Omit<Project, "id" | "raised" | "contributors" | "updates" | "status">) => {
+  const addProject = (
+    project: Omit<Project, "id" | "raised" | "contributors" | "updates" | "status">,
+  ) => {
     const newId = `P-${projectsList.length + 1}`;
-    setProjectsList([...projectsList, { ...project, id: newId, raised: 0, contributors: 0, status: "Active", updates: [] }]);
+    setProjectsList([
+      ...projectsList,
+      { ...project, id: newId, raised: 0, contributors: 0, status: "Active", updates: [] },
+    ]);
   };
 
   const addNotification = (notification: Omit<Notification, "id" | "date">) => {
@@ -190,14 +230,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       {
         ...notification,
         id: newId,
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString().split("T")[0],
       },
       ...notifications,
     ]);
   };
 
   const markNotificationAsRead = (id: string) => {
-    setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    setNotifications(notifications.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const clearNotifications = () => {
