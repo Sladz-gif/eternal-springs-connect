@@ -18,6 +18,10 @@ export type Notification = {
 
 export const seedUsers: User[] = [
   { id: "user-1", name: "Patrick Osborn", code: "0000", roleId: "super-admin" },
+  { id: "user-2", name: "Sarah Mensah", code: "1111", roleId: "finance-lead" },
+  { id: "user-3", name: "Daniel Boateng", code: "2222", roleId: "fundraising-coord" },
+  { id: "user-4", name: "Esther Ansah", code: "3333", roleId: "media-lead" },
+  { id: "user-5", name: "Joshua Okafor", code: "4444", roleId: "member-registrar" },
 ];
 
 export const seedNotifications: Notification[] = [

@@ -1,5 +1,5 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { Bell, Search, PanelLeft, ChevronDown, Menu, LogOut } from "lucide-react";
+import { Bell, Search, PanelLeft, ChevronDown, Menu, LogOut, Settings } from "lucide-react";
 import { AppSidebar } from "./app-sidebar";
 import { useApp } from "@/lib/app-context";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ function Shell({ children }: { children: ReactNode }) {
     notifications,
     markNotificationAsRead,
     clearNotifications,
+    users,
   } = useApp();
   const navigate = useNavigate();
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -149,15 +150,27 @@ function Shell({ children }: { children: ReactNode }) {
             <DropdownMenuContent align="end" className="w-64">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate({ to: "/settings" })}>
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuLabel>Switch role</DropdownMenuLabel>
-              {roles.map((r) => (
-                <DropdownMenuItem key={r.id} onClick={() => setCurrentRoleId(r.id)}>
-                  <div>
-                    <div className="text-sm font-medium">{r.name}</div>
-                    <div className="text-xs text-muted-foreground">{r.description}</div>
-                  </div>
-                </DropdownMenuItem>
-              ))}
+              {roles
+                .filter((r) => users.some((u) => u.roleId === r.id))
+                .map((r) => {
+                  const userForRole = users.find((u) => u.roleId === r.id);
+                  return (
+                    <DropdownMenuItem key={r.id} onClick={() => setCurrentRoleId(r.id)}>
+                      <div>
+                        <div className="text-sm font-medium">{r.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {userForRole?.name || r.description}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  );
+                })}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />

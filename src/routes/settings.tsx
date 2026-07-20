@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { AppShell, PageContainer, PageHeader, AccessDenied } from "@/components/app-shell";
+import { useEffect, useState } from "react";
+import { AppShell, PageContainer, PageHeader } from "@/components/app-shell";
 import { useApp, currencies, languages } from "@/lib/app-context";
 import { generateCode } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Shield, Globe, Building } from "lucide-react";
+import { Plus, Shield, Globe, Building, User } from "lucide-react";
 
 export const Route = createFileRoute("/settings")({ component: SettingsPage });
 
@@ -34,133 +34,228 @@ function SettingsPage() {
     users,
     updateUserCode,
     regenerateUserCode,
+    currentUser,
+    updateCurrentUserName,
+    updateCurrentUserCode,
   } = useApp();
-  if (!can("settings"))
-    return (
-      <AppShell>
-        <AccessDenied moduleName="Settings" />
-      </AppShell>
-    );
+
+  const hasFullSettingsAccess = can("settings");
 
   return (
     <AppShell>
       <PageContainer>
         <PageHeader
           title="Settings"
-          subtitle="Roles, permissions, church profile, and localization."
+          subtitle={
+            hasFullSettingsAccess
+              ? "Roles, permissions, church profile, and localization."
+              : "Manage your profile and account settings."
+          }
         />
 
-        <Tabs defaultValue="roles">
+        <Tabs defaultValue={hasFullSettingsAccess ? "roles" : "my-profile"}>
           <TabsList className="mb-4">
-            <TabsTrigger value="roles">
-              <Shield className="h-4 w-4 mr-2" />
-              Roles & Permissions
+            <TabsTrigger value="my-profile">
+              <User className="h-4 w-4 mr-2" />
+              My Profile
             </TabsTrigger>
-            <TabsTrigger value="profile">
-              <Building className="h-4 w-4 mr-2" />
-              Church Profile
-            </TabsTrigger>
-            <TabsTrigger value="locale">
-              <Globe className="h-4 w-4 mr-2" />
-              Language & Currency
-            </TabsTrigger>
+            {hasFullSettingsAccess && (
+              <>
+                <TabsTrigger value="roles">
+                  <Shield className="h-4 w-4 mr-2" />
+                  Roles & Permissions
+                </TabsTrigger>
+                <TabsTrigger value="profile">
+                  <Building className="h-4 w-4 mr-2" />
+                  Church Profile
+                </TabsTrigger>
+                <TabsTrigger value="locale">
+                  <Globe className="h-4 w-4 mr-2" />
+                  Language & Currency
+                </TabsTrigger>
+              </>
+            )}
           </TabsList>
 
-          <TabsContent value="roles">
-            <RolesTab
-              roles={roles}
-              modules={modules}
-              addRole={addRole}
-              addModule={addModule}
-              users={users}
-              updateUserCode={updateUserCode}
-              regenerateUserCode={regenerateUserCode}
+          <TabsContent value="my-profile">
+            <MyProfileTab
+              currentUser={currentUser}
+              updateCurrentUserName={updateCurrentUserName}
+              updateCurrentUserCode={updateCurrentUserCode}
             />
           </TabsContent>
 
-          <TabsContent value="profile">
-            <Card className="p-5 max-w-2xl">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Church name</label>
-                  <Input defaultValue="Eternal Springs Church" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Short code</label>
-                  <Input defaultValue="ETS" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Head Pastor</label>
-                  <Input defaultValue="Patrick Osborn" />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Founded</label>
-                  <Input defaultValue="2008" />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="text-xs font-medium text-muted-foreground">Address</label>
-                  <Input defaultValue="1200 Springfield Avenue, Global HQ" />
-                </div>
-              </div>
-              <div className="mt-4 flex justify-end">
-                <Button className="bg-navy text-navy-foreground hover:bg-navy/90">
-                  Save profile
-                </Button>
-              </div>
-            </Card>
-          </TabsContent>
+          {hasFullSettingsAccess && (
+            <>
+              <TabsContent value="roles">
+                <RolesTab
+                  roles={roles}
+                  modules={modules}
+                  addRole={addRole}
+                  addModule={addModule}
+                  users={users}
+                  updateUserCode={updateUserCode}
+                  regenerateUserCode={regenerateUserCode}
+                />
+              </TabsContent>
 
-          <TabsContent value="locale">
-            <Card className="p-5 max-w-2xl">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Language</label>
-                  <Select
-                    value={language.code}
-                    onValueChange={(v) => setLanguage(languages.find((l) => l.code === v)!)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {languages.map((l) => (
-                        <SelectItem key={l.code} value={l.code}>
-                          {l.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    More languages can be added anytime.
-                  </p>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground">Currency</label>
-                  <Select
-                    value={currency.code}
-                    onValueChange={(v) => setCurrency(currencies.find((c) => c.code === v)!)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {currencies.map((c) => (
-                        <SelectItem key={c.code} value={c.code}>
-                          {c.symbol} — {c.code}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    Locale-safe formatting; extensible to any ISO currency.
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </TabsContent>
+              <TabsContent value="profile">
+                <Card className="p-5 max-w-2xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Church name
+                      </label>
+                      <Input defaultValue="Eternal Springs Church" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Short code
+                      </label>
+                      <Input defaultValue="ETS" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">
+                        Head Pastor
+                      </label>
+                      <Input defaultValue="Patrick Osborn" />
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Founded</label>
+                      <Input defaultValue="2008" />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs font-medium text-muted-foreground">Address</label>
+                      <Input defaultValue="1200 Springfield Avenue, Global HQ" />
+                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end">
+                    <Button className="bg-navy text-navy-foreground hover:bg-navy/90">
+                      Save profile
+                    </Button>
+                  </div>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="locale">
+                <Card className="p-5 max-w-2xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Language</label>
+                      <Select
+                        value={language.code}
+                        onValueChange={(v) => setLanguage(languages.find((l) => l.code === v)!)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {languages.map((l) => (
+                            <SelectItem key={l.code} value={l.code}>
+                              {l.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        More languages can be added anytime.
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground">Currency</label>
+                      <Select
+                        value={currency.code}
+                        onValueChange={(v) => setCurrency(currencies.find((c) => c.code === v)!)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {currencies.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>
+                              {c.symbol} — {c.code}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1.5">
+                        Locale-safe formatting; extensible to any ISO currency.
+                      </p>
+                    </div>
+                  </div>
+                </Card>
+              </TabsContent>
+            </>
+          )}
         </Tabs>
       </PageContainer>
     </AppShell>
+  );
+}
+
+function MyProfileTab({
+  currentUser,
+  updateCurrentUserName,
+  updateCurrentUserCode,
+}: {
+  currentUser: ReturnType<typeof useApp>["currentUser"];
+  updateCurrentUserName: ReturnType<typeof useApp>["updateCurrentUserName"];
+  updateCurrentUserCode: ReturnType<typeof useApp>["updateCurrentUserCode"];
+}) {
+  const [name, setName] = useState(currentUser?.name || "");
+  const [code, setCode] = useState(currentUser?.code || "");
+
+  useEffect(() => {
+    setName(currentUser?.name || "");
+    setCode(currentUser?.code || "");
+  }, [currentUser]);
+
+  if (!currentUser) return null;
+
+  const regenerateCode = () => {
+    setCode(generateCode());
+  };
+
+  return (
+    <Card className="p-5 max-w-2xl">
+      <div className="space-y-4">
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">Full Name</label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-muted-foreground">
+            Access Code (Password)
+          </label>
+          <div className="flex gap-2">
+            <Input value={code} onChange={(e) => setCode(e.target.value)} className="font-mono" />
+            <Button variant="outline" onClick={regenerateCode}>
+              Regenerate
+            </Button>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setName(currentUser.name);
+              setCode(currentUser.code);
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            className="bg-navy text-navy-foreground hover:bg-navy/90"
+            onClick={() => {
+              updateCurrentUserName(name);
+              updateCurrentUserCode(code);
+            }}
+          >
+            Save Changes
+          </Button>
+        </div>
+      </div>
+    </Card>
   );
 }
 

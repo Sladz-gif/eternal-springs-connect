@@ -63,6 +63,8 @@ type Ctx = {
   signOut: () => void;
   updateUserCode: (userId: string, newCode: string) => void;
   regenerateUserCode: (userId: string) => void;
+  updateCurrentUserName: (newName: string) => void;
+  updateCurrentUserCode: (newCode: string) => void;
   forms: FormDef[];
   setForms: (forms: FormDef[]) => void;
   addFormSubmission: (formId: string, submission: Record<string, any>) => void;
@@ -72,6 +74,9 @@ type Ctx = {
   setMembersList: (members: Member[]) => void;
   eventsList: Event[];
   setEventsList: (events: Event[]) => void;
+  addEvent: (event: Omit<Event, "id">) => void;
+  updateEvent: (id: string, updates: Partial<Event>) => void;
+  deleteEvent: (id: string) => void;
   givingList: Giving[];
   setGivingList: (giving: Giving[]) => void;
   addGiving: (giving: Omit<Giving, "id" | "receipt">) => void;
@@ -101,7 +106,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [modules, setModules] = useState<Module[]>(seedModules);
   const [users, setUsers] = useState<User[]>(seedUsers);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [currentRoleId, setCurrentRoleId] = useState("super-admin");
+  const [currentRoleId, setCurrentRoleIdState] = useState("super-admin");
+
+  // Custom setter that updates both currentRoleId and currentUser
+  const setCurrentRoleId = (newRoleId: string) => {
+    setCurrentRoleIdState(newRoleId);
+    const userForRole = users.find((u) => u.roleId === newRoleId);
+    if (userForRole) {
+      setCurrentUser(userForRole);
+    }
+  };
+
   const [currency, setCurrency] = useState<Currency>(currencies[0]);
   const [language, setLanguage] = useState<Language>(languages[0]);
   const [forms, setForms] = useState<FormDef[]>(seedForms);
@@ -127,7 +142,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const user = users.find((u) => u.name.toLowerCase() === name.toLowerCase() && u.code === code);
     if (user) {
       setCurrentUser(user);
-      setCurrentRoleId(user.roleId);
+      setCurrentRoleIdState(user.roleId); // Use the state setter directly here since we already set currentUser
       return true;
     }
     return false;
@@ -144,6 +159,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const regenerateUserCode = (userId: string) => {
     const newCode = generateCode();
     setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, code: newCode } : u)));
+  };
+
+  const updateCurrentUserName = (newName: string) => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, name: newName };
+    setCurrentUser(updatedUser);
+    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updatedUser : u)));
+  };
+
+  const updateCurrentUserCode = (newCode: string) => {
+    if (!currentUser) return;
+    const updatedUser = { ...currentUser, code: newCode };
+    setCurrentUser(updatedUser);
+    setUsers((prev) => prev.map((u) => (u.id === currentUser.id ? updatedUser : u)));
   };
 
   const addRole = (r: Omit<Role, "id"> & { userName: string; code?: string }) => {
@@ -224,6 +253,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
     ]);
   };
 
+  const addEvent = (event: Omit<Event, "id">) => {
+    const newId = `EV-${eventsList.length + 1}`;
+    setEventsList([...eventsList, { ...event, id: newId }]);
+  };
+
+  const updateEvent = (id: string, updates: Partial<Event>) => {
+    setEventsList((prev) => prev.map((e) => (e.id === id ? { ...e, ...updates } : e)));
+  };
+
+  const deleteEvent = (id: string) => {
+    setEventsList((prev) => prev.filter((e) => e.id !== id));
+  };
+
   const addNotification = (notification: Omit<Notification, "id" | "date">) => {
     const newId = `notif-${notifications.length + 1}`;
     setNotifications([
@@ -266,6 +308,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         signOut,
         updateUserCode,
         regenerateUserCode,
+        updateCurrentUserName,
+        updateCurrentUserCode,
         forms,
         setForms,
         addFormSubmission,
@@ -275,6 +319,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setMembersList,
         eventsList,
         setEventsList,
+        addEvent,
+        updateEvent,
+        deleteEvent,
         givingList,
         setGivingList,
         addGiving,

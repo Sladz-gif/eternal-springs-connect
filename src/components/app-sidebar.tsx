@@ -29,7 +29,7 @@ interface AppSidebarProps {
 }
 
 function DesktopSidebar({ open }: { open: boolean }) {
-  const { can } = useApp();
+  const { can, currentUser } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
@@ -53,7 +53,9 @@ function DesktopSidebar({ open }: { open: boolean }) {
 
       <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
         {navItems
-          .filter((item) => item.moduleIds.some((id) => can(id)))
+          .filter((item) =>
+            item.to === "/settings" ? Boolean(currentUser) : item.moduleIds.some((id) => can(id)),
+          )
           .map((item) => {
             const isActive = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             const Icon = item.icon;
@@ -92,7 +94,7 @@ function DesktopSidebar({ open }: { open: boolean }) {
 }
 
 function MobileSidebar({ open, setOpen }: { open: boolean; setOpen: (v: boolean) => void }) {
-  const { can } = useApp();
+  const { can, currentUser } = useApp();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   if (!open) return null;
@@ -124,7 +126,9 @@ function MobileSidebar({ open, setOpen }: { open: boolean; setOpen: (v: boolean)
 
         <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
           {navItems
-            .filter((item) => item.moduleIds.some((id) => can(id)))
+            .filter((item) =>
+              item.to === "/settings" ? Boolean(currentUser) : item.moduleIds.some((id) => can(id)),
+            )
             .map((item) => {
               const isActive = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
               const Icon = item.icon;
